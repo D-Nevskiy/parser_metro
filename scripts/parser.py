@@ -7,13 +7,13 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-from xpath_constants import (DICT_CITY_XPATH,
-                             PRODUCT_CARD_XPATH,
-                             CARD_URL_XPATH,
-                             ACTUAL_PRICE_XPATH,
-                             DISCOUNT_PRICE_XPATH,
-                             ACTUAL_PRICE_PENNY_XPATH,
-                             DISCOUNT_PRICE_PENNY_XPATH)
+from scripts.utils.xpath_constants import (DICT_CITY_XPATH,
+                                           PRODUCT_CARD_XPATH,
+                                           CARD_URL_XPATH,
+                                           ACTUAL_PRICE_XPATH,
+                                           DISCOUNT_PRICE_XPATH,
+                                           ACTUAL_PRICE_PENNY_XPATH,
+                                           DISCOUNT_PRICE_PENNY_XPATH)
 
 SITE_URL = "https://online.metro-cc.ru"
 TARGET_URL = "/category/bezalkogolnye-napitki/pityevaya-voda-kulery?in_stock=1"
@@ -98,7 +98,7 @@ class ParserMetro:
                        }
 
     def analyze_products(self):
-        with open(f'report{self.target_city}.csv', 'w', newline='', encoding='utf-8') as csvfile:
+        with open(f'../data/report{self.target_city}.csv', 'w', newline='', encoding='utf-8') as csvfile:
             fieldnames = ['Articul', 'Name', 'URL', 'Price', 'Promo Price', 'Brand']
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
@@ -119,4 +119,3 @@ if __name__ == "__main__":
     parser_spb = ParserMetro(SITE_URL, TARGET_URL, 'SPB')
     parser_spb.analyze_products()
     parser_spb.driver.quit()
-

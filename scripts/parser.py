@@ -20,6 +20,28 @@ TARGET_URL = "/category/bezalkogolnye-napitki/pityevaya-voda-kulery?in_stock=1"
 
 
 class ParserMetro:
+    """
+    Парсер Metro Online для анализа напитков
+
+    Аргументы:
+        site_url (str): Базовый URL веб-сайта Metro Online.
+        category_url (str): URL для конкретной категории товаров.
+        target_city (str): Целевой город для анализа.
+
+    Атрибуты:
+        site_url (str): Базовый URL веб-сайта Metro Online.
+        category_url (str): URL для конкретной категории товаров.
+        target_city (str): Целевой город для анализа.
+        xpath_city (str): XPath-выражение для выбора целевого города.
+        driver (webdriver.Chrome): Экземпляр Selenium WebDriver для автоматизации браузера.
+
+    Методы:
+        __change_city: Меняет город на веб-сайте Metro Online.
+        __get_url_cards: Собирает информацию о карточках продуктов с веб-сайта.
+        __get_product_info: Получает подробную информацию о продуктах из URL-адресов карточек продуктов.
+        analyze_products: Анализирует и создает CSV-отчет о напитках.
+
+    """
 
     def __init__(self, site_url, category_url, target_city):
         self.site_url = site_url
@@ -29,6 +51,10 @@ class ParserMetro:
         self.driver = webdriver.Chrome()
 
     def __change_city(self):
+        """
+        Меняет город на веб-сайте Metro Online.
+
+        """
         self.driver.get(self.site_url + self.category_url)
 
         select_city_button = self.driver.find_element(By.CSS_SELECTOR, '.select-button')
@@ -40,6 +66,13 @@ class ParserMetro:
         self.driver.execute_script("arguments[0].click();", city_element)
 
     def __get_url_cards(self):
+        """
+        Собирает информацию о карточках продуктов с веб-сайта.
+
+        Генератор, возвращающий словари с информацией о продуктах.
+
+        """
+
         self.__change_city()
         for count in range(1, 10):
             url = self.site_url + self.category_url + f'&page={count}'
@@ -77,6 +110,13 @@ class ParserMetro:
                 yield {'card_url': card_url, 'price': price, 'promo_price': promo_price}
 
     def __get_product_info(self):
+        """
+        Получает подробную информацию о продуктах из URL-адресов продуктов.
+
+        Генератор, возвращающий словари с подробной информацией о продуктах.
+
+        """
+
         for product in self.__get_url_cards():
             card_url = product.get('card_url')
             response = requests.get(card_url)
@@ -98,6 +138,11 @@ class ParserMetro:
                        }
 
     def analyze_products(self):
+        """
+        Создает CSV-отчет о напитках.
+
+        """
+
         with open(f'../data/report{self.target_city}.csv', 'w', newline='', encoding='utf-8') as csvfile:
             fieldnames = ['Articul', 'Name', 'URL', 'Price', 'Promo Price', 'Brand']
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
